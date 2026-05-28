@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Procesador de Discrepancias
+    </title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .contenedor {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0,0,0,.1);
+        }
+
+        #mensajeCarga {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        /* FILTROS */
+
+        #filtros {
+            display: none;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input,
+        button {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        input {
+            min-width: 220px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* BOTON GUARDAR */
+
+        .guardar-superior {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-guardar {
+            background: #0b5ed7;
+            color: white;
+            font-weight: bold;
+            padding: 12px 25px;
+            font-size: 16px;
+        }
+
+        .bloqueado {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .desbloqueado {
+            opacity: 1;
+        }
+
+        /* BOTON RESET */
+
+        .btn-reset-mini {
+            background: #dc3545;
+            color: white;
+            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        /* BOTONES MASIVOS */
+
+        .botones-masivos {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-real {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .btn-error {
+            background: #ffc107;
+            color: black;
+        }
+
+        .btn-borrar {
+            background: #d65757;
+            color: white;
+        }
+
+        .btn-comentario {
+            background: #198754;
+            color: white;
+        }
+
+        /* COMENTARIO MASIVO */
+
+        .comentario-masivo {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .comentario-masivo input {
+            width: 450px;
+            max-width: 90%;
+        }
+
+        /* TABLA */
+
+        .tabla-container {
+            max-height: 650px;
+            overflow: auto;
+            border: 1px solid #ddd;
+            background: white;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 12px;
+        }
+
+        th {
+            background: black;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            border: 1px solid #444;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #eef6ff;
+        }
+
+        /* FILAS ENVIADAS */
+
+        .fila-enviada {
+            background-color: #d4edda !important;
+            opacity: 0.85;
+        }
+
+        .texto-enviado {
+            color: green;
+            font-weight: bold;
+        }
+
+        /* CHECKBOX */
+
+        .col-check {
+            width: 40px;
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="contenedor">
+
+        <h1>
+            Procesador de Discrepancias
+        </h1>
+
+        <!-- MENSAJE -->
+
+        <div id="mensajeCarga">
+            Cargando archivo Discrepancias....
+        </div>
+
+        <!-- FILTROS -->
+
+        <div id="filtros">
+
+            <label for="filtroTienda">
+                Buscar tienda:
+            </label>
+
+            <input
+                type="text"
+                id="filtroTienda"
+                list="listaTiendas"
+                placeholder="Escribe número o nombre"
+            >
+
+            <datalist id="listaTiendas"></datalist>
+
+            <label for="filtroFecha">
+                Mes:
+            </label>
+
+            <input
+                type="month"
+                id="filtroFecha"
+            >
+
+            <label for="filtroTarima">
+                Tarima:
+            </label>
+
+            <input
+                type="text"
+                id="filtroTarima"
+                list="listaTarimas"
+                placeholder="Buscar tarima"
+            >
+
+            <datalist id="listaTarimas"></datalist>
+
+            <button
+                onclick="limpiarFiltros()"
+                style="
+                    background:#0078d4;
+                    color:white;
+                "
+            >
+                Limpiar filtros
+            </button>
+
+        </div>
+
+        <!-- BOTON GUARDAR -->
+
+        <div class="guardar-superior">
+
+            <button
+                id="btnGuardar"
+                onclick="guardarRegistros()"
+                disabled
+                class="btn-guardar bloqueado"
+            >
+                🔒 Guardar Registros
+            </button>
+
+        </div>
+
+        <!-- BOTON RESET PEQUEÑO -->
+
+        <div
+            style="
+                display:flex;
+                justify-content:flex-end;
+                margin-bottom:10px;
+            "
+        >
+
+            <button
+                onclick="resetearFilasSeleccionadas()"
+                class="btn-reset-mini"
+            >
+                Reset
+            </button>
+
+        </div>
+        <button
+    onclick="resetearTodo()"
+    style="
+        background:#8b0000;
+        color:white;
+        font-size:11px;
+        padding:5px 10px;
+        border-radius:6px;
+        margin-left:8px;
+    "
+>
+    Resett
+</button>
+
+        <!-- BOTONES MASIVOS -->
+
+        <div class="botones-masivos">
+
+            <button
+                onclick="marcarTodasDiscrepanciaReal()"
+                class="btn-real"
+            >
+                Marcar Todas Discrepancia Real
+            </button>
+
+            <button
+                onclick="marcarTodasErrorCaptura()"
+                class="btn-error"
+            >
+                Marcar Todas Error de Captura
+            </button>
+
+            <button
+                onclick="borrarSelecciones()"
+                class="btn-borrar"
+            >
+                Borrar selecciones
+            </button>
+
+        </div>
+
+        <!-- COMENTARIO MASIVO -->
+
+        <div class="comentario-masivo">
+
+            <input
+                type="text"
+                id="comentarioMasivo"
+                placeholder="Escribir comentario para todas las filas..."
+            >
+
+            <button
+                onclick="aplicarComentarioMasivo()"
+                class="btn-comentario"
+            >
+                Aplicar comentario para todas las filas
+            </button>
+
+            <button
+                onclick="borrarComentarioMasivo()"
+                class="btn-borrar"
+            >
+                Borrar comentario masivo
+            </button>
+
+        </div>
+
+        <!-- TABLA -->
+
+        <div class="tabla-container">
+
+            <table id="tabla">
+
+                <thead></thead>
+
+                <tbody></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- LIBRERIA EXCEL -->
+
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+    <!-- TU JAVASCRIPT -->
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
